@@ -31,6 +31,33 @@ Schedule（当前还未集成，需要业务系统手动调度）
 ![111](img/3.png)
 
 ## 快速开始
+### 0.准备数据库
+```
+CREATE TABLE `task` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `status` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `create_time` datetime NOT NULL,
+  `update_time` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `task_type` int NOT NULL,
+  `task_time` datetime NOT NULL,
+  `biz_data` varchar(1000) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `task_split` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `task_id` bigint NOT NULL,
+  `status` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `create_time` datetime NOT NULL,
+  `update_time` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `task_type` int NOT NULL,
+  `task_time` datetime NOT NULL,
+  `exec_count` bigint NOT NULL DEFAULT '0',
+  `biz_data` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=618 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+```
+
 ### 1.确定任务类型
 实现`TaskTypeEnum`接口，通过枚举类维护不同的任务类型
 ```
