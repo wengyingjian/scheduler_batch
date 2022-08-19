@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wyj.task.repository.mapper.TaskMapper">
+
+    <sql id="selectTaskFields">
+        id
+        ,status, task_type, create_time, update_time, task_time,biz_data
+    </sql>
+    <resultMap id="TaskMap" type="com.wyj.task.repository.entity.TaskPO">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="task_type" jdbcType="INTEGER" property="taskType"/>
+        <result column="create_time" jdbcType="DATE" property="createTime"/>
+        <result column="update_time" jdbcType="DATE" property="updateTime"/>
+        <result column="task_time" jdbcType="DATE" property="taskTime"/>
+        <result column="biz_data" jdbcType="VARCHAR" property="bizData"/>
+    </resultMap>
+
+    <sql id="selectTaskSplitFields">
+        id
+        , task_id, status, task_type, create_time, update_time, task_time,biz_data,exec_count
+    </sql>
+
+    <resultMap id="TaskSplitMap" type="com.wyj.task.repository.entity.TaskSplitPO">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="task_id" jdbcType="BIGINT" property="taskId"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="task_type" jdbcType="INTEGER" property="taskType"/>
+        <result column="create_time" jdbcType="DATE" property="createTime"/>
+        <result column="update_time" jdbcType="DATE" property="updateTime"/>
+        <result column="task_time" jdbcType="DATE" property="taskTime"/>
+        <result column="biz_data" jdbcType="VARCHAR" property="bizData"/>
+        <result column="exec_count" jdbcType="BIGINT" property="execCount"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.wyj.task.repository.entity.TaskPO" keyProperty="id" useGeneratedKeys="true">
+        insert into task
+            (status, task_type, create_time, update_time, task_time, biz_data)
+        values (#{status}, #{taskType}, #{createTime}, #{updateTime}, #{taskTime}, #{bizData})
+    </insert>
+
+    <insert id="batchInsertSplit">
+        INSERT INTO task_split
+        (task_id, status, task_type, create_time, update_time, task_time,biz_data,exec_count)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.taskId},#{item.status}, #{item.taskType}, #{item.createTime}, #{item.updateTime},
+            #{item.taskTime},#{item.bizData},0)
+        </foreach>
+    </insert>
+
+    <select id="queryTaskSplitToDispatch" resultMap="TaskSplitMap">
+        select
+        <include refid="selectTaskSplitFields"/>
+        from task_split
+        where id >#{idStart} and status=0 and task_time &lt; sysdate()
+        order by id
+        limit #{limit}
+    </select>
+    <update id="updateTaskSplitStatus">
+        update task_split
+        set status= #{targetStatus},
+            update_time=sysdate()
+        where id = #{splitId}
+          and status = #{preStatus}
+    </update>
+    <update id="updateTaskSplitExecStatus">
+        update task_split
+        set exec_count=exec_count + 1,
+        update_time=sysdate()
+        <if test="targetStatus != null">
+            ,status= #{targetStatus}
+        </if>
+        where id = #{splitId}
+    </update>
+    <select id="queryNotFinishTaskIds" resultType="java.lang.Long">
+        select id
+        from task
+        where id >= #{idStart}
+          and status in ('0', '1')
+          and task_time &lt; sysdate()
+        order by id
+            limit #{limit}
+    </select>
+
+    <select id="querySplitStatusMapByTaskIds" resultType="java.util.Map">
+        select
+        concat(task_id,"_",status) as 'key',
+        count(*) as 'value'
+        from task_split
+        where task_id in
+        <foreach collection="list" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+        group by concat(task_id,"_",status)
+    </select>
+
+    <select id="queryTask" resultMap="TaskMap">
+        select
+        <include refid="selectTaskFields"/>
+        from task
+        where id =#{taskId}
+    </select>
+
+    <update id="updateTaskStatus" >
+        update task
+        set status=#{taskStatus},
+        update_time=sysdate()
+        where id = #{taskId}
+    </update>
+</mapper>

@@ -1,4 +1,4 @@
-package com.wyj.task.test.task;
+package com.wyj.test.impl;
 
 import com.wyj.task.JobShardingStrategy;
 import com.wyj.task.TaskHandler;
@@ -7,8 +7,6 @@ import com.wyj.task.module.enums.TaskTypeEnum;
 import com.wyj.task.module.Task;
 import com.wyj.task.module.TaskSplit;
 import com.wyj.task.TaskStrategy;
-import com.wyj.task.test.JsonUtil;
-import com.wyj.task.test.task.entity.Strategy;
 import org.springframework.stereotype.Service;
 
 import java.util.*;

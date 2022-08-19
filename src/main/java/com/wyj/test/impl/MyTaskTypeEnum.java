@@ -1,4 +1,4 @@
-package com.wyj.task.test.task;
+package com.wyj.test.impl;
 
 import com.wyj.task.module.enums.TaskTypeEnum;
 import lombok.AllArgsConstructor;

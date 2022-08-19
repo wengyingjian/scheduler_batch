@@ -1,9 +1,9 @@
 package com.wyj.task;
 
+import com.wyj.task.module.enums.TaskExecResult;
 import com.wyj.task.module.TaskSplit;
-import com.wyj.task.enums.TaskExecResult;
 
-public interface TaskHandler<T> {
+public interface TaskHandler {
 
     /**
      * 可以一次性执行完所有任务，返回成功
@@ -15,5 +15,5 @@ public interface TaskHandler<T> {
      * @param split
      * @return
      */
-    TaskExecResult execute(TaskSplit<T> split);
+    TaskExecResult execute(TaskSplit split);
 }

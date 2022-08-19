@@ -1,11 +1,10 @@
-package com.wyj.task.consumer;
+package com.wyj.task.core;
 
 import com.wyj.task.TaskHandler;
-import com.wyj.task.enums.TaskExecResult;
-import com.wyj.task.enums.TaskSplitStatusEnum;
+import com.wyj.task.module.enums.TaskExecResult;
+import com.wyj.task.module.enums.TaskSplitStatusEnum;
 import com.wyj.task.module.TaskSplit;
 import com.wyj.task.repository.TaskRepository;
-import com.wyj.task.service.TaskStrategyContext;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.core.RocketMQListener;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
@@ -17,7 +16,7 @@ import javax.annotation.Resource;
 
 @Service
 @RocketMQMessageListener(topic = "${rocketmq.consumer.topic}", consumerGroup = "${rocketmq.consumer.group}")
-public class MQConsumer implements RocketMQListener<TaskSplit> {
+public class TaskMQConsumer implements RocketMQListener<TaskSplit> {
 
     @Resource
     private TaskRepository taskRepository;
@@ -28,8 +27,6 @@ public class MQConsumer implements RocketMQListener<TaskSplit> {
 
     @Override
     public void onMessage(TaskSplit split) {
-        //get task type
-
         //get handler
         TaskHandler handler = TaskStrategyContext.getTask(split.getTaskType()).taskHandler();
 
@@ -53,7 +50,7 @@ public class MQConsumer implements RocketMQListener<TaskSplit> {
         //空、异常，数据库更新执行次数，消息自动重试
         if (result == null || error) {
             taskRepository.updateSplitExecStatus(split.getId(), null);
-            throw new RuntimeException("手动消息重试");
+            throw new RuntimeException("task exec failed,throw to retry mq");
         }
 
         if (result == TaskExecResult.SUCCESS) {

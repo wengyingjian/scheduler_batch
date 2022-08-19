@@ -1,4 +1,4 @@
-package com.wyj.task.test;
+package com.wyj.test.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.codehaus.jackson.map.DeserializationConfig;

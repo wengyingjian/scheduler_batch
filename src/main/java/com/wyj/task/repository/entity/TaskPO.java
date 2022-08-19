@@ -1,4 +1,4 @@
-package com.wyj.task.entity;
+package com.wyj.task.repository.entity;
 
 import lombok.Data;
 
@@ -12,4 +12,5 @@ public class TaskPO {
     private Date createTime;
     private Date updateTime;
     private Date taskTime;
+    private String bizData;
 }

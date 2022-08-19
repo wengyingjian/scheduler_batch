@@ -1,4 +1,4 @@
-package com.wyj.test.impl.entity;
+package com.wyj.test.impl;
 
 import lombok.Data;
 

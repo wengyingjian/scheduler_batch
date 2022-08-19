@@ -1,4 +1,4 @@
-package com.wyj.task.service;
+package com.wyj.task.core;
 
 public interface TaskService {
     void dispatch();

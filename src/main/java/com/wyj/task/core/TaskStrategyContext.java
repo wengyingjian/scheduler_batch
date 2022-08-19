@@ -1,7 +1,7 @@
-package com.wyj.task.service;
+package com.wyj.task.core;
 
 import com.wyj.task.TaskStrategy;
-import com.wyj.task.enums.TaskTypeEnum;
+import com.wyj.task.module.enums.TaskTypeEnum;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 

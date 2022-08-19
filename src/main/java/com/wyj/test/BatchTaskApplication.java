@@ -1,4 +1,4 @@
-package com.wyj;
+package com.wyj.test;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;

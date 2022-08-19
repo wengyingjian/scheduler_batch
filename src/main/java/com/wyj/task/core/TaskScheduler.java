@@ -1,6 +1,6 @@
-package com.wyj.task.schedule;
+package com.wyj.task.core;
 
-import com.wyj.task.service.TaskService;
+import com.wyj.task.core.TaskService;
 
 public class TaskScheduler {
 

@@ -1,8 +1,6 @@
-package com.wyj.task.service;
+package com.wyj.task;
 
-import com.wyj.task.JobShardingStrategy;
-import com.wyj.task.TaskHandler;
-import com.wyj.task.enums.TaskTypeEnum;
+import com.wyj.task.module.enums.TaskTypeEnum;
 import com.wyj.task.module.Task;
 
 /**

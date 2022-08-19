@@ -1,9 +1,9 @@
-package com.wyj.task.service;
+package com.wyj.task.core;
 
 import com.wyj.task.TaskApi;
-import com.wyj.task.enums.TaskSplitStatusEnum;
-import com.wyj.task.enums.TaskStatusEnum;
-import com.wyj.task.enums.TaskTypeEnum;
+import com.wyj.task.module.enums.TaskSplitStatusEnum;
+import com.wyj.task.module.enums.TaskStatusEnum;
+import com.wyj.task.module.enums.TaskTypeEnum;
 import com.wyj.task.module.Task;
 import com.wyj.task.module.TaskSplit;
 import com.wyj.task.repository.TaskRepository;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class DefaultTaskService implements TaskService, TaskApi {
+public class CoreTaskService implements TaskService, TaskApi {
 
     @Resource
     private TaskRepository taskRepository;

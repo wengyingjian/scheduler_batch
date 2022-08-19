@@ -1,4 +1,4 @@
-package com.wyj.task.enums;
+package com.wyj.task.module.enums;
 
 public interface TaskTypeEnum {
     Integer getType();
