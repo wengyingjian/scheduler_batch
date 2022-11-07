@@ -1,5 +1,5 @@
 @startuml
-title 任务分片
+title 任务分发
 
 participant schedule
 database mq
@@ -13,11 +13,13 @@ batch -> batch_db: 1.扫描待处理任务
 activate batch_db
 deactivate batch_db
 
-batch -> mq: 2.发送分片消息
-activate mq
-deactivate mq
+loop
+    batch -> mq: 2.发送分片消息
+    activate mq
+    deactivate mq
 
-batch -> batch_db: 3.更新任务状态
-activate batch_db
-deactivate batch_db
+    batch -> batch_db: 3.更新任务状态
+    activate batch_db
+    deactivate batch_db
+end loop
 @enduml

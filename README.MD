@@ -84,7 +84,10 @@ public enum MyTaskTypeEnum implements TaskTypeEnum {
 ```
 @Service
 public class MyTaskStrategy implements TaskStrategy {
-...
+    TaskTypeEnum getTaskType(){}
+    JobShardingStrategy shardingStrategy(){}
+    TaskHandler handler(){}
+    void reduce(Task task){}
 }
 ```
 #### 3.配置MQ资源
@@ -122,7 +125,7 @@ class BatchTaskApplicationTests {
     @Test
     public void testSchedule() {
         taskService.dispatch();
-        taskService.finalization();        
+        taskService.reduce();        
     }
 }
 ```

@@ -11,9 +11,9 @@ activate batch
 batch -> batch: 1.初始化任务
 group 2.初始化任务分片
     batch -> batch: 获取任务处理器
-    batch -> biz:
+    batch -> biz
     activate biz
-    biz -> biz: 任务分片
+        biz -> biz: 任务分片
     deactivate biz
 end group
 

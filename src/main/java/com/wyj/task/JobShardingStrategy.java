@@ -6,6 +6,5 @@ import com.wyj.task.module.TaskSplit;
 import java.util.List;
 
 public interface JobShardingStrategy {
-
     List<TaskSplit> sharding(Task task);
 }
