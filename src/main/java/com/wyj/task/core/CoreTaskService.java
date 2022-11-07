@@ -39,7 +39,7 @@ public class CoreTaskService implements TaskService, TaskApi {
     }
 
     @Override
-    public void dispatch() {
+    public void map() {
         List<TaskSplit> taskSplitList;
         long idStart = 0;
         int limit = 100;
@@ -74,7 +74,7 @@ public class CoreTaskService implements TaskService, TaskApi {
     }
 
     @Override
-    public void finalization() {
+    public void reduce() {
         long idStart = 0L;
         int size = 100;
         //查询所有未完结任务

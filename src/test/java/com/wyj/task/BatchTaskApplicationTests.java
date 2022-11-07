@@ -25,7 +25,7 @@ class BatchTaskApplicationTests {
 
     @Test
     public void testDispatch() {
-        taskService.dispatch();
+        taskService.map();
     }
 
     @Test
@@ -34,7 +34,7 @@ class BatchTaskApplicationTests {
 
     @Test
     public void testFinalize() {
-        taskService.finalization();
+        taskService.reduce();
     }
 
 }
