@@ -1,0 +1,24 @@
+@startuml
+title 创建任务
+
+participant batch
+participant biz
+database batch_db
+
+biz --> batch: 创建任务
+
+activate batch
+batch -> batch: 1.初始化任务
+group 2.初始化任务分片
+    batch -> batch: 获取任务处理器
+    batch -> biz:
+    activate biz
+    biz -> biz: 任务分片
+    deactivate biz
+end group
+
+batch -> batch_db: 3.保存任务及分片
+activate batch_db
+deactivate batch
+
+@enduml

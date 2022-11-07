@@ -98,7 +98,7 @@ public class CoreTaskService implements TaskService, TaskApi {
             Task task = taskRepository.queryTask(taskId);
 
             //1.需要调用finalize，同样，业务系统需要做好幂等处理
-            TaskStrategyContext.getTask(task.getTaskType()).finalize(task);
+            TaskStrategyContext.getTask(task.getTaskType()).reduce(task);
 
             //2.需要更新任务状态：若全部成功，更新为SUCCESS；若部分停止，更新为FINISH
             TaskStatusEnum taskStatus =

@@ -1,0 +1,27 @@
+@startuml
+title 任务完结
+
+participant schedule
+participant batch
+participant biz
+database batch_db
+
+schedule --> batch: trigger
+
+activate batch
+batch -> batch_db: 1.扫描未完结主任务
+activate batch_db
+deactivate batch_db
+
+batch -> batch_db: 2.找到分片已完成任务
+activate batch_db
+deactivate batch_db
+
+batch -> biz: 3.调用reduce方法
+activate biz
+deactivate biz
+
+batch -> batch_db: 4.更新任务状态
+activate batch_db
+deactivate batch_db
+@enduml

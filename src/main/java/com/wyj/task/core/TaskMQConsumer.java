@@ -28,7 +28,7 @@ public class TaskMQConsumer implements RocketMQListener<TaskSplit> {
     @Override
     public void onMessage(TaskSplit split) {
         //get handler
-        TaskHandler handler = TaskStrategyContext.getTask(split.getTaskType()).taskHandler();
+        TaskHandler handler = TaskStrategyContext.getTask(split.getTaskType()).handler();
 
         //handle：不进行资源抢占，直接执行，业务系统需要保证幂等
         TaskExecResult result = TaskExecResult.RETRY;

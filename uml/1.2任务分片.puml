@@ -1,0 +1,23 @@
+@startuml
+title 任务分片
+
+participant schedule
+database mq
+participant batch
+database batch_db
+
+schedule --> batch: trigger
+
+activate batch
+batch -> batch_db: 1.扫描待处理任务
+activate batch_db
+deactivate batch_db
+
+batch -> mq: 2.发送分片消息
+activate mq
+deactivate mq
+
+batch -> batch_db: 3.更新任务状态
+activate batch_db
+deactivate batch_db
+@enduml

@@ -24,13 +24,13 @@ public interface TaskStrategy {
      * 任务处理逻辑
      * 需要做好幂等处理
      */
-    TaskHandler taskHandler();
+    TaskHandler handler();
 
     /**
      * 所有分片任务完结后的回调
      * 业务系统可选择实现
      * 需要做好幂等处理
      */
-    void finalize(Task task);
+    void reduce(Task task);
 
 }

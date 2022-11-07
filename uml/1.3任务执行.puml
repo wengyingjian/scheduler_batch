@@ -1,0 +1,45 @@
+@startuml
+title 任务执行
+
+database mq
+participant batch
+participant biz
+database batch_db
+database biz_db
+
+mq --> batch: trigger（分片）
+
+activate batch
+batch -> batch: 1.获取任务处理器
+
+group 2.处理任务
+    alt 任务单次处理
+        batch -> biz: 处理任务（分片）
+        activate biz
+        biz -> biz: 业务逻辑
+        batch <- biz: 处理完成（成功/失败）
+        deactivate biz
+    else if 任务分多次处理
+        batch -> biz: 处理任务（分片）
+        activate biz
+        biz -> biz_db: 获取待处理任务
+        activate biz_db
+        deactivate
+        biz -> biz: 业务逻辑
+        biz -> biz_db: 更新任务处理进度
+        activate biz_db
+        deactivate
+        batch <- biz: 处理完成（需要重试）
+        deactivate biz
+    end
+end group
+
+batch -> batch_db: 3.更新任务状态（成功/失败/重试）
+alt 任务失败/重试
+    batch -> mq: 4.重新发送分片消息
+    activate mq
+    deactivate mq
+end
+activate batch_db
+deactivate batch_db
+@enduml

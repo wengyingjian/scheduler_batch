@@ -56,7 +56,7 @@ public class MyTaskStrategy implements TaskStrategy {
     }
 
     @Override
-    public TaskHandler taskHandler() {
+    public TaskHandler handler() {
         return new TaskHandler() {
             @Override
             public TaskExecResult execute(TaskSplit split) {
@@ -80,7 +80,7 @@ public class MyTaskStrategy implements TaskStrategy {
     }
 
     @Override
-    public void finalize(Task task) {
+    public void reduce(Task task) {
         System.out.println("finalize:" + JsonUtil.obj2String(task));
     }
 
