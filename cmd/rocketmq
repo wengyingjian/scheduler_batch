@@ -1,0 +1,32 @@
+
+# aliyun centos安装java8
+yum install java-1.8.0-openjdk
+cd /usr/lib/javm/java
+vi /etc/profile
+    JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.352.b08-2.el7_9.x86_64/jre
+    PATH=$JAVA_HOME/bin:$PATH
+    export JAVA_HOME PATH
+source /etc/profile
+
+# 安装rocketmq（前提安装java $JAVA_HOME)
+wget https://archive.apache.org/dist/rocketmq/4.9.4/rocketmq-all-4.9.4-bin-release.zip
+unzip rocketmq-ala-4.9.4-bin-release.zip
+
+# 启动rocketmq
+cd /root/rocketmq-all-4.9.4-bin-release/bin
+nohup sh ./mqnamesrv &
+nohup sh ./mqbroker -n 39.101.66.97:9876 -c ../conf/broker.conf &
+tail -f nohup.out
+
+## 启动失败
+vi runserver.sh
+JAVA_OPT="${JAVA_OPT} -server -Xms256m  -Xmx256m  -Xmn128m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=320m"
+vi runbroker.sh
+JAVA_OPT="${JAVA_OPT} -server -Xms1g -Xmx1g"
+
+# 安装控制台
+cd ~
+yum install git && git clone https://github.com/apache/rocketmq-dashboard.git
+cd rocketmq-dashboard/
+yum install maven && mvn spring-boot:run
+http://127.0.0.1:8080/#/

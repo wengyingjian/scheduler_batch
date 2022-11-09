@@ -21,8 +21,7 @@ public interface TaskStrategy {
     JobShardingStrategy shardingStrategy();
 
     /**
-     * 任务处理逻辑
-     * 需要做好幂等处理
+     * 任务处理逻辑，需要做好幂等处理
      */
     TaskHandler handler();
 

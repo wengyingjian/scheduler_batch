@@ -2,7 +2,7 @@ package com.wyj.task;
 
 import com.wyj.test.BatchTaskApplication;
 import com.wyj.task.core.TaskService;
-import com.wyj.test.impl.MyTaskTypeEnum;
+import com.wyj.test.impl.TaskTypeEnum;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -19,13 +19,18 @@ class BatchTaskApplicationTests {
     private TaskApi taskClient;
 
     @Test
-    public void testCreateTask() {
-        taskClient.submit(MyTaskTypeEnum.TYPE1, new Date(), String.valueOf(new Random().nextInt(100000)));
+    public void testCreateSimpleTask() {
+        taskClient.submit(TaskTypeEnum.SIMPLE_FLUSH_CACHE, new Date(), String.valueOf(new Random().nextInt(100000)));
+    }
+
+    @Test
+    public void testCreateMultiTask() {
+        taskClient.submit(TaskTypeEnum.MULTI_TASK_TEST, new Date(), null);
     }
 
     @Test
     public void testDispatch() {
-        taskService.map();
+        taskService.dispatch();
     }
 
     @Test
@@ -34,7 +39,7 @@ class BatchTaskApplicationTests {
 
     @Test
     public void testFinalize() {
-        taskService.reduce();
+        taskService.scan();
     }
 
 }

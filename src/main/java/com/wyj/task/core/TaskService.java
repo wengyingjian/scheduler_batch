@@ -1,7 +1,7 @@
 package com.wyj.task.core;
 
 public interface TaskService {
-    void map();
+    void dispatch();
 
-    void reduce();
+    void scan();
 }

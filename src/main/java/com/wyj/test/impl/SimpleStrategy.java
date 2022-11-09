@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class Strategy {
+public class SimpleStrategy {
     private String strategyId;
     private List<Long> storeIds = new ArrayList<>();
 
-    public static Strategy init(String strategyId) {
-        Strategy strategy = new Strategy();
+    public static SimpleStrategy init(String strategyId) {
+        SimpleStrategy strategy = new SimpleStrategy();
         strategy.setStrategyId(strategyId);
         return strategy;
     }

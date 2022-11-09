@@ -11,6 +11,8 @@ public interface TaskHandler {
      * <p>
      * 业务系统需要做逻辑的幂等处理，同一个任务，因为网络问题可能会重复执行
      * 框架会尽量保证任务不丢，但无法保证任务不重复
+     * <p/>
+     * mq默认超时时间为15min，若单次任务执行超过15min，则判断为任务失败
      *
      * @param split
      * @return

@@ -7,9 +7,9 @@ public class TaskScheduler {
     //cron 1分钟
     public void schedule() {
         //分发任务
-        taskService.map();
+        taskService.dispatch();
         //扫描任务是否完成
-        taskService.reduce();
+        taskService.scan();
     }
 
 

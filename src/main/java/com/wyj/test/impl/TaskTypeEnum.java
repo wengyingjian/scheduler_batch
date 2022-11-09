@@ -1,11 +1,10 @@
 package com.wyj.test.impl;
 
-import com.wyj.task.module.enums.TaskTypeEnum;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public enum MyTaskTypeEnum implements TaskTypeEnum {
-    TYPE1(0), TYPE2(1);
+public enum TaskTypeEnum implements com.wyj.task.module.enums.TaskTypeEnum {
+    SIMPLE_FLUSH_CACHE(0), MULTI_TASK_TEST(1);
 
     private final int type;
 

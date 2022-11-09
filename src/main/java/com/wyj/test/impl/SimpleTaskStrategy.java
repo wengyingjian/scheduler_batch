@@ -3,20 +3,20 @@ package com.wyj.test.impl;
 import com.wyj.task.JobShardingStrategy;
 import com.wyj.task.TaskHandler;
 import com.wyj.task.module.enums.TaskExecResult;
-import com.wyj.task.module.enums.TaskTypeEnum;
 import com.wyj.task.module.Task;
 import com.wyj.task.module.TaskSplit;
 import com.wyj.task.TaskStrategy;
+import com.wyj.task.util.JsonUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
-public class MyTaskStrategy implements TaskStrategy {
+public class SimpleTaskStrategy implements TaskStrategy {
 
     @Override
-    public TaskTypeEnum getTaskType() {
-        return MyTaskTypeEnum.TYPE1;
+    public com.wyj.task.module.enums.TaskTypeEnum getTaskType() {
+        return TaskTypeEnum.SIMPLE_FLUSH_CACHE;
     }
 
     @Override
@@ -33,10 +33,10 @@ public class MyTaskStrategy implements TaskStrategy {
 
                 TaskSplit taskSplit = splitMap.get(key);
                 if (taskSplit == null) {
-                    taskSplit = TaskSplit.init(JsonUtil.obj2String(Strategy.init(strategyId)), task);
+                    taskSplit = TaskSplit.init(JsonUtil.obj2String(SimpleStrategy.init(strategyId)), task);
                     splitMap.put(key, taskSplit);
                 }
-                Strategy strategy = JsonUtil.string2Obj(taskSplit.getBizData(), Strategy.class);
+                SimpleStrategy strategy = JsonUtil.string2Obj(taskSplit.getBizData(), SimpleStrategy.class);
                 taskSplit.setBizData(JsonUtil.obj2String(strategy));
             }
 
@@ -49,7 +49,7 @@ public class MyTaskStrategy implements TaskStrategy {
     //为了减少没用的分片(按照门店id分片），此处进行数据库查询，根据关联的门店id，仅分发有任务的分片
     private List<String> queryStoreIdByStrategyIds(String strategyId) {
         List<String> storeIds = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 20; i++) {
             storeIds.add(strategyId + new Random().nextInt(10000));
         }
         return storeIds;
@@ -74,7 +74,13 @@ public class MyTaskStrategy implements TaskStrategy {
                 if (random == 2) {
                     return TaskExecResult.RETRY;
                 }
-                throw new RuntimeException("RuntimeException error");
+                //timeout
+                try {
+                    Thread.sleep(3000 * 60);
+                    return TaskExecResult.SUCCESS;
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         };
     }

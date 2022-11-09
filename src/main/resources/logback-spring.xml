@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+    <springProperty scope="context" name="root.log.level" defaultValue="info" source="root.log.level"/>
+    <springProperty scope="context" name="logPattern" source="spring.metric.logback.pattern"
+                    defaultValue="[%p][%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ}][%c{1}:%L,%t] || msg=%m%n"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                ${logPattern}
+            </pattern>
+        </encoder>
+    </appender>
+
+    <root level="${root.log.level}">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <logger name="org.springframework" level="${root.log.level}" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <logger name="com.wyj" level="${root.log.level}" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+
+</configuration>

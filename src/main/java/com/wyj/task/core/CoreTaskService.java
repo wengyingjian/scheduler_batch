@@ -7,9 +7,10 @@ import com.wyj.task.module.enums.TaskTypeEnum;
 import com.wyj.task.module.Task;
 import com.wyj.task.module.TaskSplit;
 import com.wyj.task.repository.TaskRepository;
+import com.wyj.task.util.JsonUtil;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.messaging.support.MessageBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -21,12 +22,11 @@ import java.util.Map;
 @Service
 public class CoreTaskService implements TaskService, TaskApi {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Resource
     private TaskRepository taskRepository;
     @Resource
     private RocketMQTemplate rocketMQTemplate;
-    @Value("${rocketmq.producer.topic}")
-    private String mqTopic;
 
     @Override
     public void submit(TaskTypeEnum taskType, Date taskTime, String bizData) {
@@ -39,7 +39,7 @@ public class CoreTaskService implements TaskService, TaskApi {
     }
 
     @Override
-    public void map() {
+    public void dispatch() {
         List<TaskSplit> taskSplitList;
         long idStart = 0;
         int limit = 100;
@@ -66,15 +66,17 @@ public class CoreTaskService implements TaskService, TaskApi {
      */
     private void doDispatch(TaskSplit split) {
         //分发任务
-        //mq.send
-        rocketMQTemplate.send(mqTopic, MessageBuilder.withPayload(split).build());
+        String mqTopic = TaskStrategyContext.getTaskTopic(split.getTaskType());
+        rocketMQTemplate.convertAndSend(mqTopic, JsonUtil.obj2String(split));
 
         //修改任务状态
         taskRepository.statusSplit2Executing(split.getId(), TaskSplitStatusEnum.INIT, TaskSplitStatusEnum.EXECUTING);
+
+        logger.info("task dispatch succ,splitId={},split={}", split.getId(), JsonUtil.obj2String(split));
     }
 
     @Override
-    public void reduce() {
+    public void scan() {
         long idStart = 0L;
         int size = 100;
         //查询所有未完结任务

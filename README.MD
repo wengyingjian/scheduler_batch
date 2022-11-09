@@ -91,13 +91,10 @@ public class MyTaskStrategy implements TaskStrategy {
 }
 ```
 #### 3.配置MQ资源
-生产者跟消费者的topic需要对应
+生产者跟消费者的topic相同
 ```
 rocketmq.name-server=127.0.0.1:9876
-rocketmq.producer.topic=my_topic
-rocketmq.producer.group=my_group
-
-rocketmq.consumer.topic=my_topic
+rocketmq.topic=my_topic
 rocketmq.consumer.group=my_group
 ```
 #### 4.创建任务
