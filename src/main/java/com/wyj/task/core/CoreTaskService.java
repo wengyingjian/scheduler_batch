@@ -8,13 +8,19 @@ import com.wyj.task.module.Task;
 import com.wyj.task.module.TaskSplit;
 import com.wyj.task.repository.TaskRepository;
 import com.wyj.task.util.JsonUtil;
+import org.apache.rocketmq.client.apis.ClientException;
+import org.apache.rocketmq.client.apis.ClientServiceProvider;
+import org.apache.rocketmq.client.apis.message.Message;
+import org.apache.rocketmq.client.apis.producer.Producer;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -39,11 +45,11 @@ public class CoreTaskService implements TaskService, TaskApi {
     }
 
     @Override
-    public void dispatch() {
+    public void dispatch(TaskScheduler.StopChecker checker) throws ClientException {
         List<TaskSplit> taskSplitList;
         long idStart = 0;
         int limit = 100;
-        while (true) {
+        while (!checker.check()) {
             //查询待处理任务：任务状态，任务处理时间
             taskSplitList = taskRepository.queryTaskSplitToDispatch(idStart, limit);
             if (CollectionUtils.isEmpty(taskSplitList)) {
@@ -64,7 +70,7 @@ public class CoreTaskService implements TaskService, TaskApi {
      *
      * @param split
      */
-    private void doDispatch(TaskSplit split) {
+    private void doDispatch(TaskSplit split) throws ClientException {
         //分发任务
         String mqTopic = TaskStrategyContext.getTaskTopic(split.getTaskType());
         rocketMQTemplate.convertAndSend(mqTopic, JsonUtil.obj2String(split));
@@ -76,7 +82,7 @@ public class CoreTaskService implements TaskService, TaskApi {
     }
 
     @Override
-    public void scan() {
+    public void scan(TaskScheduler.StopChecker checker) {
         long idStart = 0L;
         int size = 100;
         //查询所有未完结任务
@@ -100,7 +106,7 @@ public class CoreTaskService implements TaskService, TaskApi {
             Task task = taskRepository.queryTask(taskId);
 
             //1.需要调用finalize，同样，业务系统需要做好幂等处理
-            TaskStrategyContext.getTask(task.getTaskType()).reduce(task);
+            TaskStrategyContext.getTask(task.getTaskType()).taskHandler().reduce(task);
 
             //2.需要更新任务状态：若全部成功，更新为SUCCESS；若部分停止，更新为FINISH
             TaskStatusEnum taskStatus =

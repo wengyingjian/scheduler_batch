@@ -1,5 +1,6 @@
 package com.wyj.task;
 
+import com.wyj.task.module.Task;
 import com.wyj.task.module.enums.TaskExecResult;
 import com.wyj.task.module.TaskSplit;
 
@@ -18,4 +19,11 @@ public interface TaskHandler {
      * @return
      */
     TaskExecResult execute(TaskSplit split);
+
+    /**
+     * 所有分片任务完结后的回调
+     * 业务系统可选择实现
+     * 需要做好幂等处理
+     */
+    void reduce(Task task);
 }

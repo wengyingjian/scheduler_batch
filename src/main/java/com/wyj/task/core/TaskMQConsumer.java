@@ -7,6 +7,13 @@ import com.wyj.task.module.enums.TaskExecResult;
 import com.wyj.task.module.enums.TaskSplitStatusEnum;
 import com.wyj.task.repository.TaskRepository;
 import com.wyj.task.util.JsonUtil;
+import org.apache.rocketmq.client.apis.ClientConfiguration;
+import org.apache.rocketmq.client.apis.ClientException;
+import org.apache.rocketmq.client.apis.ClientServiceProvider;
+import org.apache.rocketmq.client.apis.consumer.ConsumeResult;
+import org.apache.rocketmq.client.apis.consumer.FilterExpression;
+import org.apache.rocketmq.client.apis.consumer.FilterExpressionType;
+import org.apache.rocketmq.client.apis.consumer.PushConsumer;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
@@ -21,18 +28,19 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
 @DependsOn(value = {"taskStrategyContext"})
 @Component
-public class TaskMQConsumerRegister {
+public class TaskMQConsumer {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Resource
     private TaskRepository taskRepository;
-    @Resource
-    private RocketMQTemplate rocketMQTemplate;
+    //    @Resource
+//    private RocketMQTemplate rocketMQTemplate;
     @Value("${rocketmq.name-server}")
     private String nameservAddr;
 
@@ -46,7 +54,7 @@ public class TaskMQConsumerRegister {
         logger.info("task mq consumer:taskId={},splitId={}", split.getTaskId(), split.getId());
 
         //get handler
-        TaskHandler handler = TaskStrategyContext.getTask(split.getTaskType()).handler();
+        TaskHandler handler = TaskStrategyContext.getTask(split.getTaskType()).taskHandler();
 
         //handle：不进行资源抢占，直接执行，业务系统需要保证幂等
         TaskExecResult result = TaskExecResult.RETRY;
@@ -110,7 +118,6 @@ public class TaskMQConsumerRegister {
 
             //处理消息
             result = handleWithTaskWrapper(split);
-            logger.info("retry inside");
 
             //after-统计信息
             maxCost = Math.max(maxCost, System.currentTimeMillis() - start);
@@ -120,8 +127,7 @@ public class TaskMQConsumerRegister {
         //对于重试的任务，期望时间可能超过mq超时时间（或重试超过1000次），将放弃优化，放回到mq
         if (result == TaskExecResult.RETRY) {
             String mqTopic = TaskStrategyContext.getTaskTopic(split.getTaskType());
-            rocketMQTemplate.convertAndSend(mqTopic, JsonUtil.obj2String(split));
-            logger.info("retry outside");
+//            rocketMQTemplate.convertAndSend(mqTopic, JsonUtil.obj2String(split));
         }
     }
 
@@ -150,7 +156,7 @@ public class TaskMQConsumerRegister {
         consumer.subscribe(mqTopic, "*");
         //timeout
 //        consumer.setConsumeTimeout(15);
-        consumer.setConsumeThreadMax(20);
+//        consumer.setConsumeThreadMax(20);
 
         consumer.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
             //获取消息

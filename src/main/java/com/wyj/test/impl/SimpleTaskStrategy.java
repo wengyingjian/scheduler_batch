@@ -16,7 +16,7 @@ public class SimpleTaskStrategy implements TaskStrategy {
 
     @Override
     public com.wyj.task.module.enums.TaskTypeEnum getTaskType() {
-        return TaskTypeEnum.SIMPLE_FLUSH_CACHE;
+        return MyTaskTypeEnum.SIMPLE_FLUSH_CACHE;
     }
 
     @Override
@@ -33,10 +33,10 @@ public class SimpleTaskStrategy implements TaskStrategy {
 
                 TaskSplit taskSplit = splitMap.get(key);
                 if (taskSplit == null) {
-                    taskSplit = TaskSplit.init(JsonUtil.obj2String(SimpleStrategy.init(strategyId)), task);
+                    taskSplit = TaskSplit.init(JsonUtil.obj2String(SimpleCache.init(strategyId)), task);
                     splitMap.put(key, taskSplit);
                 }
-                SimpleStrategy strategy = JsonUtil.string2Obj(taskSplit.getBizData(), SimpleStrategy.class);
+                SimpleCache strategy = JsonUtil.string2Obj(taskSplit.getBizData(), SimpleCache.class);
                 taskSplit.setBizData(JsonUtil.obj2String(strategy));
             }
 
@@ -56,7 +56,7 @@ public class SimpleTaskStrategy implements TaskStrategy {
     }
 
     @Override
-    public TaskHandler handler() {
+    public TaskHandler taskHandler() {
         return new TaskHandler() {
             @Override
             public TaskExecResult execute(TaskSplit split) {
@@ -82,12 +82,12 @@ public class SimpleTaskStrategy implements TaskStrategy {
                     throw new RuntimeException(e);
                 }
             }
-        };
-    }
 
-    @Override
-    public void reduce(Task task) {
-        System.out.println("finalize:" + JsonUtil.obj2String(task));
+            @Override
+            public void reduce(Task task) {
+                System.out.println("finalize:" + JsonUtil.obj2String(task));
+            }
+        };
     }
 
 

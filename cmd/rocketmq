@@ -28,5 +28,5 @@ JAVA_OPT="${JAVA_OPT} -server -Xms1g -Xmx1g"
 cd ~
 yum install git && git clone https://github.com/apache/rocketmq-dashboard.git
 cd rocketmq-dashboard/
-yum install maven && mvn spring-boot:run
+mvn spring-boot:run
 http://127.0.0.1:8080/#/

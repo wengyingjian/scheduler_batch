@@ -1,7 +1,9 @@
 package com.wyj.task.core;
 
-public interface TaskService {
-    void dispatch();
+import org.apache.rocketmq.client.apis.ClientException;
 
-    void scan();
+public interface TaskService {
+    void dispatch(TaskScheduler.StopChecker checker) throws ClientException;
+
+    void scan(TaskScheduler.StopChecker checker);
 }

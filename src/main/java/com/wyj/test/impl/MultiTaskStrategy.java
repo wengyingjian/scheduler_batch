@@ -17,8 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MultiTaskStrategy implements TaskStrategy {
 
     @Override
-    public TaskTypeEnum getTaskType() {
-        return TaskTypeEnum.MULTI_TASK_TEST;
+    public MyTaskTypeEnum getTaskType() {
+        return MyTaskTypeEnum.MULTI_TASK_TEST;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class MultiTaskStrategy implements TaskStrategy {
     private static final Map<String, Integer> splitRetryRecord = new ConcurrentHashMap<>();
 
     @Override
-    public TaskHandler handler() {
+    public TaskHandler taskHandler() {
         return new TaskHandler() {
             @Override
             public TaskExecResult execute(TaskSplit split) {
@@ -57,12 +57,12 @@ public class MultiTaskStrategy implements TaskStrategy {
                 return TaskExecResult.SUCCESS;
 
             }
-        };
-    }
 
-    @Override
-    public void reduce(Task task) {
-        System.out.println("finalize:" + JsonUtil.obj2String(task));
+            @Override
+            public void reduce(Task task) {
+                System.out.println("finalize:" + JsonUtil.obj2String(task));
+            }
+        };
     }
 
 
