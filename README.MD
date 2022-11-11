@@ -1,6 +1,8 @@
 ## 介绍
 该框架用于分布式环境下批量任务分发处理
 
+InfoQ文章：[分布式任务批处理技术选型与实践](https://xie.infoq.cn/article/7ecb2f26d6c0b6f000af6994f)
+
 主要功能：
 ```
 1.业务系统提供分片规则，创建任务
@@ -23,12 +25,14 @@ Spring（当前未从项目拆离）
 Schedule（当前还未集成，需要业务系统手动调度）
 ```
 ## 架构
+### 部署架构
+![img.png](img/img.png)
 ### 系统架构
-![123](img/1.png)
+![img_2.png](img/img_2.png)
 ### 技术架构
-![11](img/2.png)
+![img_1.png](img/img_1.png)
 ### 状态机
-![111](img/3.png)
+![img_3.png](img/img_3.png)
 
 ## 快速开始
 ### 0.准备数据库
@@ -57,72 +61,73 @@ CREATE TABLE `task_split` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=618 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 ```
+### 1.注册任务
+**a.确定任务类型**
 
-### 1.确定任务类型
 实现`TaskTypeEnum`接口，通过枚举类维护不同的任务类型
+
 ```
-@AllArgsConstructor
 public enum MyTaskTypeEnum implements TaskTypeEnum {
-    TYPE1(0), TYPE2(1);
-
-    private final int type;
-
-    @Override
-    public Integer getType() {
-        return type;
-    }
+SIMPLE_FLUSH_CACHE(0), MULTI_TASK_TEST(1);
 }
-```
+```   
+**b.实现任务策略**
+实现`TaskStrategy`接口，实现以下功能：
+- 返回任务类型 
+- 提供任务分片规则 
+- 提供业务处理器（任务处理逻辑+完结回调）
 
-### 2.实现任务策略
-实现`TaskStrategy`接口，实现以下功能
-- 返回任务类型
-- 提供任务分片规则
-- 提供业务处理逻辑
-- 提供任务完结回调
- 
 ```
-@Service
 public class MyTaskStrategy implements TaskStrategy {
-    TaskTypeEnum getTaskType(){}
-    JobShardingStrategy shardingStrategy(){}
-    TaskHandler handler(){}
-    void reduce(Task task){}
+TaskTypeEnum getTaskType(){}
+JobShardingStrategy shardingStrategy(){}
+TaskHandler handler(){}
 }
-```
-#### 3.配置MQ资源
-生产者跟消费者的topic相同
-```
-rocketmq.name-server=127.0.0.1:9876
-rocketmq.topic=my_topic
-rocketmq.consumer.group=my_group
-```
-#### 4.创建任务
-```
-@SpringBootTest(classes = BatchTaskApplication.class)
-class BatchTaskApplicationTests {
-    @Resource
-    private TaskApi taskClient;
 
-    @Test
-    public void testCreateTask() {
-        taskClient.submit(MyTaskTypeEnum.TYPE1, new Date(), String.valueOf(new Random().nextInt(100000)));
-    }
+public interface JobShardingStrategy {
+List<TaskSplit> sharding(Task task);
+}
+
+public interface TaskHandler {
+TaskExecResult execute(TaskSplit split);
+void reduce(Task task);
 }
 ```
-#### 5.手动调度
+
+### 2.初始化消息队列
+为了保证不同任务消费者线程之间互不影响，不同的任务通过不同的 topic 隔离。
+- topic 为`task_topic_ + ${task_name} `
+- consumer.group 为`task_consumer_group_ + ${task_name}`。
+
+如SIMPLE_FLUSH_CACHE这个任务： 
+- topic `为task_topic_SIMPLE_FLUSH_CACHE`， 
+- consumer.group `为task_consumer_group_SIMPLE_FLUSH_CACHE`。
+
+```
+rocketmq.name-server=39.101.66.97:9876
+```
+
+### 3.创建任务
+```aidl
+@Resource
+private TaskApi taskClient;
+
+@Test
+public void testCreateSimpleTask() {
+taskClient.submit(MyTaskTypeEnum.SIMPLE_FLUSH_CACHE, new Date(), String.valueOf(new Random().nextInt(100000)));
+}
+```
+
+
+### 4.配置调度系统
 当前没有集成调度工具，可通过公司技术栈的分布式调度框架完成。
 当前手动调度示范：
 ```
-@SpringBootTest(classes = BatchTaskApplication.class)
-class BatchTaskApplicationTests {
-    @Resource
-    private TaskService taskService;
+@Resource
+private TaskService taskService;
 
-    @Test
-    public void testSchedule() {
-        taskService.dispatch();
-        taskService.reduce();        
-    }
+@Test
+public void testDispatch() {
+taskService.dispatch(new TaskScheduler.StopChecker(-1));
 }
 ```
